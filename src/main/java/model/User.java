@@ -31,7 +31,7 @@ public class User {
 
     @Column(name = "is_online", nullable = false)
     @NonNull
-    private boolean isOnline;
+    private boolean isOnline = false;
 
     @ToString.Exclude
     @JsonIgnore
