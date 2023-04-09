@@ -24,7 +24,7 @@ public class Message {
 
     @ToString.Exclude
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE)
     private User user;
 }
