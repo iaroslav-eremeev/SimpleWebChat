@@ -5,9 +5,10 @@ const chatMessages = document.querySelector('#chat-messages');
 const onlineUsers = document.querySelector('#online-users');
 
 function updateChatMessages() {
-    fetch('messages', {method: 'GET'})
-        .then(response => response.json())
-        .then(data => {
+    $.ajax({
+        type: "GET",
+        url: "messages",
+        success: function (data) {
             chatMessages.innerHTML = '';
             data.forEach(message => {
                 const messageDiv = document.createElement('div');
@@ -16,13 +17,15 @@ function updateChatMessages() {
                 messageDiv.innerText = `${userLogin}: ${messageText}`;
                 chatMessages.appendChild(messageDiv);
             });
-        });
+        }
+    });
 }
 
 function updateOnlineUsers() {
-    fetch('login', {method: 'GET'})
-        .then(response => response.json())
-        .then(data => {
+    $.ajax({
+        type: "GET",
+        url: "login",
+        success: function (data) {
             onlineUsers.innerHTML = 'ONLINE:';
             data.forEach(user => {
                 const userLogin = user.login;
@@ -30,7 +33,8 @@ function updateOnlineUsers() {
                 userDiv.innerText = userLogin;
                 onlineUsers.appendChild(userDiv);
             });
-        });
+        }
+    });
 }
 
 updateChatMessages();
@@ -39,17 +43,16 @@ updateOnlineUsers();
 const messageForm = document.querySelector('#message-form');
 messageForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const messageText = document.querySelector('#message-text').value;
-    const userId = document.querySelector('#user-id').value;
-    fetch('messages', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: `messageText=${messageText}&userId=${userId}`
-    }).then(() => {
-        updateChatMessages();
-        document.querySelector('#message-text').value = '';
+    const messageText = document.querySelector('#message-input').value;
+    const userId = localStorage.getItem('userId');
+    $.ajax({
+        type: "POST",
+        url: "messages",
+        data: {"messageText": messageText, "userId": userId},
+        success: function () {
+            updateChatMessages();
+            document.querySelector('#message-text').value = '';
+        }
     });
 });
 

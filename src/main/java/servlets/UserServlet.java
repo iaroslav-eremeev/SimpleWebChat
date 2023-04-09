@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/login")
@@ -60,7 +61,8 @@ public class UserServlet extends HttpServlet {
             List onlineUsers = DAO.getObjectsByParams(new String[]{"isOnline"}, new Object[]{true}, User.class);
             resp.getWriter().write(new Gson().toJson(onlineUsers));
         } catch (Exception e) {
-            resp.setStatus(200);
+            List onlineUsers = new ArrayList<>();
+            resp.getWriter().write(new Gson().toJson(onlineUsers));
         }
     }
 

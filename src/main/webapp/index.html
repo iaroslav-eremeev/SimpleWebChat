@@ -36,10 +36,9 @@
     /* Center align the login and sign-up buttons */
     .container {
       display: flex;
+      flex-direction: row;
       justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      height: 100vh;
+      align-items: stretch;
     }
     /* Vertically center the form */
     form {
@@ -50,6 +49,7 @@
     }
     /* Chat messages display area */
     #chat-messages {
+      width: 500px;
       height: 400px;
       overflow: auto;
       border: 1px solid #ccc;
@@ -77,11 +77,13 @@
     <div class="form-group text-center">
       <h1>Now start chatting!</h1>
     </div>
-    <div id="chat-messages"></div>
-    <div id="online-users"></div>
+    <div class="container">
+      <div id="chat-messages"></div>
+      <div id="online-users"></div>
+    </div>
     <form>
       <label for="message-input"></label><input type="text" id="message-input" placeholder="Type your message...">
-      <button type="submit">Send</button>
+      <button class="btn-warning" type="submit">Send</button>
     </form>
   </form>
 </div>

@@ -1,3 +1,4 @@
+/*
 package servlets;
 
 import repository.SSEEmittersRepository;
@@ -9,11 +10,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(value = "/sse/chat-watch", asyncSupported = true)
 public class ChatWatchServlet extends HttpServlet {
     private SSEEmittersRepository emitters = new SSEEmittersRepository();
     private ChatWatchService service;
-
 
     @Override
     public void init() {
@@ -39,3 +38,4 @@ public class ChatWatchServlet extends HttpServlet {
         }
     }
 }
+*/
