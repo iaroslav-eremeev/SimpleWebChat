@@ -29,6 +29,8 @@ public class User {
 
     private String hash;
 
+    private boolean isOnline;
+
     @ToString.Exclude
     @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
