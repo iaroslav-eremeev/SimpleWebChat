@@ -20,7 +20,7 @@ function updateChatMessages() {
 }
 
 function updateOnlineUsers() {
-    fetch('users', {method: 'GET'})
+    fetch('login', {method: 'GET'})
         .then(response => response.json())
         .then(data => {
             onlineUsers.innerHTML = 'ONLINE:';

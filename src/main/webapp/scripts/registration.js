@@ -1,5 +1,5 @@
 $('#btn-go-login').click(function () {
-        $(location).attr('href', "http://localhost:8080/SimpleWebChat/users.html");
+        $(location).attr('href', "http://localhost:8080/SimpleWebChat/login.html");
     }
 )
 
@@ -21,5 +21,5 @@ $('#btn-sign-up').click(function () {
 
 $('#btn-ok').click(function () {
     $('.popup-fade').fadeOut();
-    $(location).attr('href', "http://localhost:8080/SimpleWebChat/users.html");
+    $(location).attr('href', "http://localhost:8080/SimpleWebChat/login.html");
 })

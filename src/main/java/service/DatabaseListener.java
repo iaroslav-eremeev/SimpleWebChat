@@ -2,7 +2,6 @@ package service;
 
 import dto.Event;
 import model.Message;
-import org.hibernate.envers.RevisionListener;
 import org.hibernate.event.spi.PostInsertEvent;
 import org.hibernate.event.spi.PostInsertEventListener;
 import org.hibernate.persister.entity.EntityPersister;
@@ -10,7 +9,7 @@ import org.hibernate.persister.entity.EntityPersister;
 import java.nio.file.Paths;
 import java.util.concurrent.BlockingQueue;
 
-public class DatabaseListener implements PostInsertEventListener {
+public abstract class DatabaseListener implements PostInsertEventListener {
 
     private BlockingQueue<Event> messageBlockingQueue;
 

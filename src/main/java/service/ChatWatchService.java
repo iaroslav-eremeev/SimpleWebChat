@@ -13,6 +13,7 @@ import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
+import org.hibernate.persister.entity.EntityPersister;
 import repository.SSEEmittersRepository;
 
 import javax.servlet.AsyncContext;
@@ -65,7 +66,12 @@ public class ChatWatchService {
         SessionFactory sessionFactory = metadata.getSessionFactoryBuilder().build();
         AuditReader auditReader = AuditReaderFactory.get(sessionFactory.getCurrentSession());
 
-        DatabaseListener listener = new DatabaseListener(messageBlockingQueue);
+        DatabaseListener listener = new DatabaseListener(messageBlockingQueue) {
+            @Override
+            public boolean requiresPostCommitHanding(EntityPersister entityPersister) {
+                return false;
+            }
+        };
 
         // Register the listener with the session factory
         EventListenerRegistry eventListenerRegistry = ((SessionFactoryImplementor) sessionFactory).getServiceRegistry().getService(EventListenerRegistry.class);
