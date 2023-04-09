@@ -29,6 +29,8 @@ public class User {
 
     private String hash;
 
+    @Column(name = "is_online", nullable = false)
+    @NonNull
     private boolean isOnline;
 
     @ToString.Exclude
