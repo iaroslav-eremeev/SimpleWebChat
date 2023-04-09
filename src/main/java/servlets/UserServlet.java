@@ -13,9 +13,10 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
-@WebServlet("/login")
-public class LoginServlet extends HttpServlet {
+@WebServlet("/users")
+public class UserServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -50,12 +51,14 @@ public class LoginServlet extends HttpServlet {
         }
     }
 
+    // Get only users who are online
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Unicode.setUnicode(req, resp);
         resp.setContentType("application/json");
         try {
-            resp.getWriter().write(new Gson().toJson(DAO.getAllObjects(User.class)));
+            List onlineUsers = DAO.getObjectsByParams(new String[]{"isOnline"}, new Object[]{true}, User.class);
+            resp.getWriter().write(new Gson().toJson(onlineUsers));
         } catch (Exception e) {
             resp.setStatus(200);
         }
