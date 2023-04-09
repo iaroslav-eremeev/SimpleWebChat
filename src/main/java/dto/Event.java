@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.StringJoiner;
 
 public class Event {
-
     private final String action;
     private final String path;
 

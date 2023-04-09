@@ -3,9 +3,9 @@ package servlets;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import model.Message;
 import model.User;
-import org.hibernate.Session;
-import DAO.HibernateUtil;
 import DAO.DAO;
+import repository.SSEEmittersRepository;
+import service.ChatWatchService;
 import util.Unicode;
 
 import javax.servlet.ServletException;
@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.util.List;
 
 public class MessageServlet extends HttpServlet {
+
+    private SSEEmittersRepository emitters = new SSEEmittersRepository();
+    private ChatWatchService service = new ChatWatchService(emitters);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -45,27 +48,19 @@ public class MessageServlet extends HttpServlet {
         String messageText = req.getParameter("messageText");
         int userId = Integer.parseInt(req.getParameter("userId"));
 
-        User user = null;
-        try {
-            user = (User) DAO.getObjectById(userId, User.class);
-            DAO.closeOpenedSession();
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.setStatus(400);
-            resp.getWriter().println(e.getMessage());
-            return;
+        User user = (User) DAO.getObjectById(userId, User.class);
+        DAO.closeOpenedSession();
+        if(user != null) {
+            Message message = new Message(messageText, user);
+            try {
+                DAO.addObject(message);
+                resp.getWriter().println("Message added successfully");
+                service.add(message);
+            } catch (Exception e) {
+                resp.setStatus(400);
+                resp.getWriter().println(e.getMessage());
+            }
         }
-        Message message = new Message(messageText);
-        message.setUser(user);
-        try {
-            DAO.addObject(message);
-            DAO.closeOpenedSession();
-            resp.setStatus(200);
-            resp.getWriter().println("Message added successfully");
-        } catch (Exception e) {
-            e.printStackTrace();
-            resp.setStatus(400);
-            resp.getWriter().println(e.getMessage());
-        }
+        
     }
 }

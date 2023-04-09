@@ -1,5 +1,5 @@
-import {Message} from "./model/message";
-import {User} from "./model/user";
+import {Message} from "./model/message.js";
+import {User} from "./model/user.js";
 
 const chatMessages = document.querySelector('#chat-messages');
 const onlineUsers = document.querySelector('#online-users');

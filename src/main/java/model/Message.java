@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 import javax.persistence.*;
 
@@ -27,7 +28,8 @@ public class Message {
     @ToString.Exclude
     @JsonIgnore
     @ManyToOne
-    @Cascade(value = org.hibernate.annotations.CascadeType.DELETE)
+    @NonNull
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private User user;
 
     public int getUserId() {

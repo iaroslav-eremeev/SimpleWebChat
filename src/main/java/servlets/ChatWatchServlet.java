@@ -17,7 +17,7 @@ public class ChatWatchServlet extends HttpServlet {
 
     @Override
     public void init() {
-        this.service = new ChatWatchService("", this.emitters);
+        this.service = new ChatWatchService(this.emitters);
     }
 
     @Override
