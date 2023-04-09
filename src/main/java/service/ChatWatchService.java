@@ -10,13 +10,9 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.RevisionType;
-import org.hibernate.envers.internal.reader.AuditReaderImplementor;
 import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
-import org.hibernate.query.criteria.HibernateCriteriaBuilder;
-import org.hibernate.query.criteria.JpaCriteriaQuery;
-import org.hibernate.query.criteria.JpaRoot;
 import repository.SSEEmittersRepository;
 
 import javax.servlet.AsyncContext;
@@ -31,11 +27,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import util.Constants;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
-
 
 public class ChatWatchService {
     private SSEEmittersRepository repository;
@@ -107,10 +98,6 @@ public class ChatWatchService {
             }
         }
     }
-
-
-
-
 
     private void startMessageReceive() {
         singleThreadExecutorTasker = Executors.newSingleThreadExecutor();

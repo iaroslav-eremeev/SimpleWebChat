@@ -29,4 +29,8 @@ public class Message {
     @ManyToOne
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE)
     private User user;
+
+    public int getUserId() {
+        return this.getUser().getId();
+    }
 }
