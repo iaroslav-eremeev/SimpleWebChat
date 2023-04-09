@@ -2,16 +2,40 @@ package service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.Event;
+import model.Message;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.RevisionType;
+import org.hibernate.envers.internal.reader.AuditReaderImplementor;
+import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaCriteriaQuery;
+import org.hibernate.query.criteria.JpaRoot;
 import repository.SSEEmittersRepository;
 
 import javax.servlet.AsyncContext;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.*;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import util.Constants;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+
 
 public class ChatWatchService {
     private SSEEmittersRepository repository;
@@ -35,10 +59,58 @@ public class ChatWatchService {
     }
 
     private void listenToDatabase() {
-        // Listen to the Message database
-        // When a new event is received, add it to the blocking queue
-        messageBlockingQueue.add(new Event("create", Path.of("new_message")));
+        Configuration configuration = new Configuration()
+                .setProperty("hibernate.connection.url", Constants.DB_URL)
+                .setProperty("hibernate.connection.username", Constants.USERNAME)
+                .setProperty("hibernate.connection.password", Constants.PASSWORD);
+
+        StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder()
+                .applySettings(configuration.getProperties());
+
+        MetadataSources metadataSources = new MetadataSources(builder.build());
+        metadataSources.addAnnotatedClass(Message.class);
+
+        Metadata metadata = metadataSources.getMetadataBuilder().build();
+        SessionFactory sessionFactory = metadata.getSessionFactoryBuilder().build();
+        AuditReader auditReader = AuditReaderFactory.get(sessionFactory.getCurrentSession());
+
+        DatabaseListener listener = new DatabaseListener(messageBlockingQueue);
+
+        // Register the listener with the session factory
+        EventListenerRegistry eventListenerRegistry = ((SessionFactoryImplementor) sessionFactory).getServiceRegistry().getService(EventListenerRegistry.class);
+        eventListenerRegistry.appendListeners(EventType.POST_INSERT, listener);
+
+        // Poll the database for new messages when a new event is added to the blocking queue
+        while (true) {
+            try {
+                Event event = messageBlockingQueue.take();
+                if (event.getAction().equals("create") && event.getPath().equals(Constants.DB_URL)) {
+                    // Query the database for new messages
+                    Session session = sessionFactory.openSession();
+                    session.beginTransaction();
+
+                    List messages = auditReader.createQuery()
+                            .forRevisionsOfEntity(Message.class, false, true)
+                            .add(AuditEntity.revisionType().eq(RevisionType.ADD))
+                            .add(AuditEntity.property("path").eq(Constants.DB_URL))
+                            .getResultList();
+
+                    session.getTransaction().commit();
+                    session.close();
+
+                    // Add the new messages to the message blocking queue
+                    messageBlockingQueue.addAll(messages);
+                }
+            } catch (InterruptedException e) {
+                // Handle interrupted exception
+                e.printStackTrace();
+            }
+        }
     }
+
+
+
+
 
     private void startMessageReceive() {
         singleThreadExecutorTasker = Executors.newSingleThreadExecutor();
