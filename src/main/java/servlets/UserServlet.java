@@ -2,7 +2,10 @@ package servlets;
 
 import DAO.DAO;
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import model.User;
+import repository.SSEEmittersRepository;
 import util.Encrypt;
 import util.Unicode;
 
@@ -67,19 +70,24 @@ public class UserServlet extends HttpServlet {
         Unicode.setUnicode(request, response);
         // Set response content type to JSON
         response.setContentType("application/json");
-        try (PrintWriter writer = response.getWriter()) {
+        try {
             List<User> onlineUsers = DAO.getObjectsByParams(new String[]{"isOnline"}, new Object[]{true}, User.class);
             DAO.closeOpenedSession();
             if (onlineUsers.isEmpty()) {
                 // If no one is online, return all users
                 List<User> allUsers = DAO.getAllObjects(User.class);
                 DAO.closeOpenedSession();
-                writer.write(new Gson().toJson(allUsers));
+                String json = new Gson().toJson(allUsers);
+                response.getWriter().write(json);
             } else {
-                DAO.closeOpenedSession();
                 // Write online users list to response in JSON format
-                writer.write(new Gson().toJson(onlineUsers));
+                String json = new Gson().toJson(onlineUsers);
+                response.getWriter().write(json);
             }
+        } catch (JsonIOException | JsonSyntaxException e) {
+            // If there is an exception with JSON parsing, set the response status to 500 (Internal Server Error)
+            response.setStatus(500);
+            response.getWriter().print("Error parsing JSON: " + e.getMessage());
         } catch (Exception e) {
             // Log error and send 500 error response
             log("Error getting online users", e);

@@ -13,24 +13,26 @@ function addChatMessage(message) {
 const onlineUsers = document.querySelector('#online-users');
 function updateOnlineUsers() {
     $.ajax({
-        type: "GET",
         url: "login",
+        method: "GET",
         success: function (data) {
             onlineUsers.innerHTML = 'ONLINE:';
-            data.forEach(user => {
-                const userLogin = user.login;
-                const userDiv = document.createElement('div');
-                userDiv.innerText = userLogin;
-                onlineUsers.appendChild(userDiv);
-            });
+            if (data && data.length) {
+                data.forEach(user => {
+                    const userLogin = user.login;
+                    const userDiv = document.createElement('div');
+                    userDiv.innerText = userLogin;
+                    onlineUsers.appendChild(userDiv);
+                });
+            } else {
+                console.error("Unexpected response data:", data);
+            }
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.error(textStatus + " - " + errorThrown);
         }
     });
 }
-
-
 // Call the function initially
 updateOnlineUsers();
 // Call the function every 60 seconds
