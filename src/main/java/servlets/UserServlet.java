@@ -68,11 +68,18 @@ public class UserServlet extends HttpServlet {
         // Set response content type to JSON
         response.setContentType("application/json");
         try (PrintWriter writer = response.getWriter()) {
-            // Get list of online users
             List<User> onlineUsers = DAO.getObjectsByParams(new String[]{"isOnline"}, new Object[]{true}, User.class);
             DAO.closeOpenedSession();
-            // Write online users list to response in JSON format
-            writer.write(new Gson().toJson(onlineUsers));
+            if (onlineUsers.isEmpty()) {
+                // If no one is online, return all users
+                List<User> allUsers = DAO.getAllObjects(User.class);
+                DAO.closeOpenedSession();
+                writer.write(new Gson().toJson(allUsers));
+            } else {
+                DAO.closeOpenedSession();
+                // Write online users list to response in JSON format
+                writer.write(new Gson().toJson(onlineUsers));
+            }
         } catch (Exception e) {
             // Log error and send 500 error response
             log("Error getting online users", e);

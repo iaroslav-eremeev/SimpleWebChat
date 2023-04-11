@@ -2,8 +2,6 @@ import {Message} from "./model/message.js";
 import {User} from "./model/user.js";
 
 const chatMessages = document.querySelector('#chat-messages');
-const onlineUsers = document.querySelector('#online-users');
-
 function addChatMessage(message) {
     const messageDiv = document.createElement('div');
     const userLogin = message.user.login;
@@ -12,23 +10,7 @@ function addChatMessage(message) {
     chatMessages.appendChild(messageDiv);
 }
 
-function updateChatMessages() {
-    $.ajax({
-        type: "GET",
-        url: "messages",
-        success: function (data) {
-            chatMessages.innerHTML = '';
-            data.forEach(message => {
-                const messageDiv = document.createElement('div');
-                const userLogin = message.user.login;
-                const messageText = message.messageText;
-                messageDiv.innerText = `${userLogin}: ${messageText}`;
-                chatMessages.appendChild(messageDiv);
-            });
-        }
-    });
-}
-
+const onlineUsers = document.querySelector('#online-users');
 function updateOnlineUsers() {
     $.ajax({
         type: "GET",
@@ -41,35 +23,18 @@ function updateOnlineUsers() {
                 userDiv.innerText = userLogin;
                 onlineUsers.appendChild(userDiv);
             });
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error(textStatus + " - " + errorThrown);
         }
     });
 }
 
-updateChatMessages();
+
+// Call the function initially
 updateOnlineUsers();
-
-const messageForm = document.querySelector('#message-form');
-messageForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const messageText = document.querySelector('#message-input').value;
-    const userId = localStorage.getItem('userId');
-    $.ajax({
-        type: "POST",
-        url: "messages",
-        data: {"messageText": messageText, "userId": userId},
-        success: function () {
-            updateChatMessages();
-            document.querySelector('#message-text').value = '';
-        }
-    });
-});
-
-setInterval(() => {
-    updateOnlineUsers();
-}, 1000);
-
-
-
+// Call the function every 60 seconds
+setInterval(updateOnlineUsers, 60000);
 
 if (!!window.EventSource) {
     function isFunction(functionToCheck) {
