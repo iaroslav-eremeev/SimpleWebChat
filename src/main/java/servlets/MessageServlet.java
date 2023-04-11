@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(value = "/sse/chat-watch", asyncSupported = true)
+@WebServlet(value = {"/sse/chat-watch", "/messages"}, asyncSupported = true)
 public class MessageServlet extends HttpServlet {
 
     private SSEEmittersRepository emitters = new SSEEmittersRepository();
@@ -51,6 +51,9 @@ public class MessageServlet extends HttpServlet {
                 DAO.closeOpenedSession();
                 ObjectMapper objectMapper = new ObjectMapper();
                 String messagesJson = objectMapper.writeValueAsString(messages);
+                if (messages.isEmpty()) {
+                    messagesJson = "[]"; // return an empty list instead of throwing an error
+                }
                 resp.getWriter().println(messagesJson);
             }
         } catch (Exception e) {
