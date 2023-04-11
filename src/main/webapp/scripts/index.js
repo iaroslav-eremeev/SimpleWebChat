@@ -4,6 +4,14 @@ import {User} from "./model/user.js";
 const chatMessages = document.querySelector('#chat-messages');
 const onlineUsers = document.querySelector('#online-users');
 
+function addChatMessage(message) {
+    const messageDiv = document.createElement('div');
+    const userLogin = message.user.login;
+    const messageText = message.messageText;
+    messageDiv.innerText = `${userLogin}: ${messageText}`;
+    chatMessages.appendChild(messageDiv);
+}
+
 function updateChatMessages() {
     $.ajax({
         type: "GET",
@@ -69,8 +77,8 @@ if (!!window.EventSource) {
     }
 
     function debounce(func, wait) {
-        var timeout;
-        var waitFunc;
+        let timeout;
+        let waitFunc;
 
         return function () {
             if (isFunction(wait)) {
@@ -80,8 +88,8 @@ if (!!window.EventSource) {
                     return wait
                 };
             }
-            var context = this, args = arguments;
-            var later = function () {
+            let context = this, args = arguments;
+            const later = function () {
                 timeout = null;
                 func.apply(context, args);
             };
@@ -90,10 +98,10 @@ if (!!window.EventSource) {
         };
     }
     // reconnectFrequencySeconds doubles every retry
-    var reconnectFrequencySeconds = 1;
-    var evtSource;
+    let reconnectFrequencySeconds = 1;
+    let evtSource;
 
-    var reconnectFunc = debounce(function () {
+    let reconnectFunc = debounce(function () {
         setupEventSource();
         // Double every attempt to avoid overwhelming server
         reconnectFrequencySeconds *= 2;
@@ -108,8 +116,9 @@ if (!!window.EventSource) {
     function setupEventSource() {
         evtSource = new EventSource('messages');
         evtSource.onmessage = function (e) {
-            var msg = JSON.parse(e.data);
-            //TODO обработать объект
+            const msg = JSON.parse(e.data);
+            // add message to chat
+
         };
         evtSource.onopen = function () {
             // Reset reconnect frequency upon successful connection

@@ -13,69 +13,89 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.PrintWriter;
 import java.util.List;
 
 @WebServlet("/login")
 public class UserServlet extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Unicode.setUnicode(req, resp);
-        String login = req.getParameter("login");
-        String password = req.getParameter("password");
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Set the response character encoding to UTF-8
+        Unicode.setUnicode(request, response);
+        // Get the login and password parameters from the request
+        String login = request.getParameter("login");
+        String password = request.getParameter("password");
+        // Check if the parameters are not null
         if (login != null && password != null) {
             try {
+                // Try to get the user from the database using the login and password
                 User user = (User) DAO.getObjectByParams(new String[]{"login", "password"}, new Object[]{login, password}, User.class);
+                // Close the Hibernate session
                 DAO.closeOpenedSession();
                 if (user != null) {
+                    // Generate a new hash for the user
                     String hash = Encrypt.generateHash();
                     user.setHash(hash);
+                    // Update the user object in the database
                     DAO.updateObject(user);
+                    // Create a new cookie with the hash value and set its properties
                     Cookie cookie = new Cookie("hash", hash);
                     cookie.setMaxAge(30 * 60);
                     cookie.setPath("/");
-                    resp.addCookie(cookie);
-                }
-                else{
-                    resp.setStatus(400);
-                    resp.getWriter().print("Incorrect login or password");
+                    // Add the cookie to the response
+                    response.addCookie(cookie);
+                } else {
+                    // If the user is not found, set the response status to 400 Bad Request
+                    response.setStatus(400);
+                    response.getWriter().print("Incorrect login or password");
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                resp.setStatus(400);
-                resp.getWriter().println(e.getMessage());
+                // If an exception is thrown, set the response status to 500 Internal Server Error
+                response.setStatus(500);
+                response.getWriter().println(e.getMessage());
             }
-        }
-        else {
+        } else {
+            // If the parameters are null, print a message to the console
             System.out.println("Login or password are incorrect");
         }
     }
 
-    // Get only users who are online
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Unicode.setUnicode(req, resp);
-        resp.setContentType("application/json");
-        try {
-            List onlineUsers = DAO.getObjectsByParams(new String[]{"isOnline"}, new Object[]{true}, User.class);
-            resp.getWriter().write(new Gson().toJson(onlineUsers));
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Set unicode encoding for request and response
+        Unicode.setUnicode(request, response);
+        // Set response content type to JSON
+        response.setContentType("application/json");
+        try (PrintWriter writer = response.getWriter()) {
+            // Get list of online users
+            List<User> onlineUsers = DAO.getObjectsByParams(new String[]{"isOnline"}, new Object[]{true}, User.class);
+            DAO.closeOpenedSession();
+            // Write online users list to response in JSON format
+            writer.write(new Gson().toJson(onlineUsers));
         } catch (Exception e) {
-            List onlineUsers = new ArrayList<>();
-            resp.getWriter().write(new Gson().toJson(onlineUsers));
+            // Log error and send 500 error response
+            log("Error getting online users", e);
+            response.sendError(500, "Error getting online users");
         }
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Unicode.setUnicode(req, resp);
-        String id = req.getParameter("id");
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Set the request and response character encoding to Unicode
+        Unicode.setUnicode(request, response);
+        // Get the id parameter from the request
+        String id = request.getParameter("id");
         if (id != null) {
             try {
+                // Convert the id parameter to long and delete the corresponding User object from the database
                 DAO.deleteObjectById(Math.toIntExact(Long.parseLong(id)), User.class);
+                DAO.closeOpenedSession();
             } catch (Exception e) {
-                resp.setStatus(200);
+                // If there is an exception, set the response status to 200 (OK)
+                response.setStatus(200);
             }
         }
     }
+
 }
