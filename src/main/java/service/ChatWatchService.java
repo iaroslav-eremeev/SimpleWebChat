@@ -13,8 +13,11 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ChatWatchService {
+    private static final Logger LOGGER = Logger.getLogger(ChatWatchService.class.getName());
     private SSEEmittersRepository repository;
     private BlockingQueue<Message> messageBlockingQueue = new LinkedBlockingQueue<>();
     private ExecutorService singleThreadExecutorTasker;
@@ -24,7 +27,8 @@ public class ChatWatchService {
             writer.println("data: " + new ObjectMapper().writeValueAsString(message));
             writer.println();
             writer.flush();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Error sending message", e);
         }
     }
 
@@ -44,19 +48,20 @@ public class ChatWatchService {
                 while (true) {
                     // Next event from the blocking queue
                     Message message = messageBlockingQueue.take();
-                    System.out.println("Start sending\n" + repository.getList());
+                    LOGGER.log(Level.FINE, "Start sending\n" + repository.getList());
                     for (AsyncContext asyncContext : repository.getList()) {
                         try {
                             sendMessage(asyncContext.getResponse().getWriter(), message);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LOGGER.log(Level.WARNING, "Error sending message to client", e);
                         }
                     }
                 }
             } catch (InterruptedException e) {
-                System.out.println("Thread is interrupting");
+                LOGGER.log(Level.WARNING, "Thread was interrupted", e);
+            } finally {
+                LOGGER.log(Level.INFO, "Thread is done receiving messages");
             }
-            System.out.println("Thread is interrupted");
         });
     }
 

@@ -37,51 +37,51 @@ public class MessageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Unicode.setUnicode(req, resp);
-        if (req.getHeader("Accept").equals("text/event-stream")) {
-            resp.setContentType("text/event-stream");
-            resp.setHeader("Connection", "keep-alive");
-            resp.setCharacterEncoding("UTF-8");
+        try {
+            if (req.getHeader("Accept").equals("text/event-stream")) {
+                resp.setContentType("text/event-stream");
+                resp.setHeader("Connection", "keep-alive");
+                resp.setCharacterEncoding("UTF-8");
 
-            AsyncContext asyncContext = req.startAsync();
-            asyncContext.setTimeout(60000L);
-            this.emitters.add(asyncContext);
-        } else {
-            List<Message> messages = new ArrayList();
-            try {
-                messages = DAO.getAllObjects(Message.class);
+                AsyncContext asyncContext = req.startAsync();
+                asyncContext.setTimeout(60000L);
+                this.emitters.add(asyncContext);
+            } else {
+                List<Message> messages = DAO.getAllObjects(Message.class);
                 DAO.closeOpenedSession();
-            } catch (Exception e) {
-                e.printStackTrace();
-                resp.setStatus(400);
-                resp.getWriter().println(e.getMessage());
-                return;
+                ObjectMapper objectMapper = new ObjectMapper();
+                String messagesJson = objectMapper.writeValueAsString(messages);
+                resp.getWriter().println(messagesJson);
             }
-            ObjectMapper objectMapper = new ObjectMapper();
-            String messagesJson = objectMapper.writeValueAsString(messages);
-            resp.getWriter().println(messagesJson);
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Unicode.setUnicode(req, resp);
+        try {
+            String messageText = req.getParameter("messageText");
+            int userId = Integer.parseInt(req.getParameter("userId"));
 
-        String messageText = req.getParameter("messageText");
-        int userId = Integer.parseInt(req.getParameter("userId"));
-
-        User user = (User) DAO.getObjectById(userId, User.class);
-        DAO.closeOpenedSession();
-        if (user != null) {
-            Message message = new Message(messageText, user);
-            try {
+            User user = (User) DAO.getObjectById(userId, User.class);
+            DAO.closeOpenedSession();
+            if (user != null) {
+                Message message = new Message(messageText, user);
                 DAO.addObject(message);
                 resp.getWriter().println("Message added successfully");
                 service.add(message);
-            } catch (Exception e) {
-                resp.setStatus(400);
-                resp.getWriter().println(e.getMessage());
+            } else {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                resp.getWriter().println("User not found");
             }
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().println(e.getMessage());
+            e.printStackTrace();
         }
-
     }
 }
