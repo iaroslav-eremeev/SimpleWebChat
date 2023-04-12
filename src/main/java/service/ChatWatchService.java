@@ -1,14 +1,12 @@
 package service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dto.Event;
 import model.Message;
 import repository.SSEEmittersRepository;
 
 import javax.servlet.AsyncContext;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

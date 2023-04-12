@@ -32,7 +32,4 @@ public class Message {
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     private User user;
 
-    @Column
-    @NonNull
-    private String userLogin = user.getLogin();
 }

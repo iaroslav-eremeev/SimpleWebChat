@@ -3,7 +3,6 @@ $('#btn-go-login').click(function () {
     }
 )
 
-
 $('#btn-sign-up').click(function () {
         $.ajax({
             url: 'registration',

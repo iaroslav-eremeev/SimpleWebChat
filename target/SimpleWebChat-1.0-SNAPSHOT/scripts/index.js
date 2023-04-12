@@ -43,9 +43,9 @@ if (!!window.EventSource) {
     });
 
     function setupEventSource() {
-        let evtSource = new EventSource('http://localhost:8080/SimpleWebChat/sse/chat-watch');
-        evtSource.addEventListener('message', function(e) {
-            const msg = JSON.parse(e.data);
+        let evtSource = new EventSource('messages');
+        evtSource.onmessage(function(event) {
+            const msg = JSON.parse(event.data);
             const chatMessages = document.querySelector('#chat-messages');
             const messageDiv = document.createElement('div');
             messageDiv.innerText = `${msg.username}: ${msg.message}`;
