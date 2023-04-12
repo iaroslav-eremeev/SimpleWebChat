@@ -44,7 +44,7 @@ if (!!window.EventSource) {
 
     function setupEventSource() {
         let evtSource = new EventSource('messages');
-        evtSource.onmessage(function(event) {
+        evtSource.addEventListener('message', function(event) {
             const msg = JSON.parse(event.data);
             const chatMessages = document.querySelector('#chat-messages');
             const messageDiv = document.createElement('div');

@@ -1,6 +1,7 @@
 package repository;
 
 import DAO.DAO;
+import com.google.gson.internal.bind.util.ISO8601Utils;
 import model.User;
 
 import javax.servlet.AsyncContext;
@@ -54,7 +55,6 @@ public class SSEEmittersRepository {
             }
         });
         list.add(asyncContext);
-        System.out.println("After adding emitter " + list);
     }
 
     public CopyOnWriteArrayList<AsyncContext> getList() {

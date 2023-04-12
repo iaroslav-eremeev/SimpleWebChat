@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
 
 @WebServlet(value = {"/messages"}, asyncSupported = true)
 public class MessageServlet extends HttpServlet {
@@ -35,6 +36,8 @@ public class MessageServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        AsyncContext asyncContext = req.startAsync();
+        asyncContext.setTimeout(60000L);
         Unicode.setUnicode(req, resp);
         try {
             if (req.getHeader("Accept").equals("text/event-stream")) {
@@ -42,8 +45,6 @@ public class MessageServlet extends HttpServlet {
                 resp.setHeader("Connection", "keep-alive");
                 resp.setCharacterEncoding("UTF-8");
 
-                AsyncContext asyncContext = req.startAsync();
-                asyncContext.setTimeout(60000L);
                 this.emitters.add(asyncContext);
                 // send a comment to keep connection alive
                 resp.getWriter().write(": ping\n\n");
@@ -71,19 +72,24 @@ public class MessageServlet extends HttpServlet {
         try {
             String messageText = req.getParameter("messageText");
             int userId = Integer.parseInt(req.getParameter("userId"));
+            System.out.println("messageText = " + messageText);
+            System.out.println("userId = " + userId);
 
             User user = (User) DAO.getObjectById(userId, User.class);
             DAO.closeOpenedSession();
             if (user != null) {
+                System.out.println("user = " + user + " is not null");
                 Message message = new Message(messageText, user);
+                System.out.println("message from user = " + message);
                 DAO.addObject(message);
                 resp.getWriter().println("Message added successfully");
-                service.add(message);
+                this.service.add(message);
             } else {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.getWriter().println("User not found");
             }
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().println(e.getMessage());
             e.printStackTrace();
