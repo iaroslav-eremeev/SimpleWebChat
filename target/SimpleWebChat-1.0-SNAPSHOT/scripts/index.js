@@ -11,7 +11,7 @@ function addChatMessage(message) {
 }
 
 const onlineUsers = document.querySelector('#online-users');
-function updateOnlineUsers() {
+/*function updateOnlineUsers() {
     $.ajax({
         url: "login",
         method: "GET",
@@ -20,9 +20,11 @@ function updateOnlineUsers() {
             if (data && data.length) {
                 data.forEach(user => {
                     const userLogin = user.login;
-                    const userDiv = document.createElement('div');
-                    userDiv.innerText = userLogin;
-                    onlineUsers.appendChild(userDiv);
+                    if (userLogin in emittersByUser) {
+                        const userDiv = document.createElement('div');
+                        userDiv.innerText = userLogin;
+                        onlineUsers.appendChild(userDiv);
+                    }
                 });
             } else {
                 console.error("Unexpected response data:", data);
@@ -32,11 +34,13 @@ function updateOnlineUsers() {
             console.error(textStatus + " - " + errorThrown);
         }
     });
-}
+}*/
+
+
 // Call the function initially
-updateOnlineUsers();
+/*updateOnlineUsers();*/
 // Call the function every 60 seconds
-setInterval(updateOnlineUsers, 60000);
+/*setInterval(updateOnlineUsers, 60000);*/
 
 if (!!window.EventSource) {
     function isFunction(functionToCheck) {
