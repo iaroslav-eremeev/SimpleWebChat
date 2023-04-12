@@ -39,16 +39,5 @@ public class User {
     @Cascade(value = org.hibernate.annotations.CascadeType.DELETE)
     private List<Message> messages = new ArrayList<>();
 
-    public void addMessage(Message message){
-        this.messages.add(message);
-    }
-
-    public void deleteMessage(int messageId) {
-        messages.removeIf(message -> message.getId() == messageId);
-    }
-
-    public void deleteAllMessages() {
-        messages.clear();
-    }
 }
 

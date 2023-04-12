@@ -15,10 +15,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(value = {"/sse/chat-watch", "/messages"}, asyncSupported = true)
+@WebServlet(value = {"/messages"}, asyncSupported = true)
 public class MessageServlet extends HttpServlet {
 
     private SSEEmittersRepository emitters = new SSEEmittersRepository();
@@ -46,6 +45,8 @@ public class MessageServlet extends HttpServlet {
                 AsyncContext asyncContext = req.startAsync();
                 asyncContext.setTimeout(60000L);
                 this.emitters.add(asyncContext);
+                // send a comment to keep connection alive
+                resp.getWriter().write(": ping\n\n");
             } else {
                 List<Message> messages = DAO.getAllObjects(Message.class);
                 DAO.closeOpenedSession();
@@ -54,6 +55,7 @@ public class MessageServlet extends HttpServlet {
                 if (messages.isEmpty()) {
                     messagesJson = "[]"; // return an empty list instead of throwing an error
                 }
+                resp.setContentType("application/json");
                 resp.getWriter().println(messagesJson);
             }
         } catch (Exception e) {

@@ -1,53 +1,10 @@
 import {Message} from "./model/message.js";
 import {User} from "./model/user.js";
 
-$('send-message-button').click(function () {
-    const chatMessages = document.querySelector('#chat-messages');
-    const messageDiv = document.createElement('div');
-    const userLogin = localStorage.getItem('userLogin');
-    const messageText = document.querySelector('#message-text').value;
-    messageDiv.innerText = `${userLogin}: ${messageText}`;
-    chatMessages.appendChild(messageDiv);
-    }
-)
-
-const onlineUsers = document.querySelector('#online-users');
-/*function updateOnlineUsers() {
-    $.ajax({
-        url: "login",
-        method: "GET",
-        success: function (data) {
-            onlineUsers.innerHTML = 'ONLINE:';
-            if (data && data.length) {
-                data.forEach(user => {
-                    const userLogin = user.login;
-                    if (userLogin in emittersByUser) {
-                        const userDiv = document.createElement('div');
-                        userDiv.innerText = userLogin;
-                        onlineUsers.appendChild(userDiv);
-                    }
-                });
-            } else {
-                console.error("Unexpected response data:", data);
-            }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
-            console.error(textStatus + " - " + errorThrown);
-        }
-    });
-}*/
-
-
-// Call the function initially
-/*updateOnlineUsers();*/
-// Call the function every 60 seconds
-/*setInterval(updateOnlineUsers, 60000);*/
-
 if (!!window.EventSource) {
     function isFunction(functionToCheck) {
         return functionToCheck && {}.toString.call(functionToCheck) === '[object Function]';
     }
-
     function debounce(func, wait) {
         let timeout;
         let waitFunc;
@@ -86,12 +43,14 @@ if (!!window.EventSource) {
     });
 
     function setupEventSource() {
-        evtSource = new EventSource('messages');
-        evtSource.onmessage = function (e) {
+        let evtSource = new EventSource('http://localhost:8080/SimpleWebChat/sse/chat-watch');
+        evtSource.addEventListener('message', function(e) {
             const msg = JSON.parse(e.data);
-            // add message to chat
-
-        };
+            const chatMessages = document.querySelector('#chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.innerText = `${msg.username}: ${msg.message}`;
+            chatMessages.appendChild(messageDiv);
+        });
         evtSource.onopen = function () {
             // Reset reconnect frequency upon successful connection
             reconnectFrequencySeconds = 1;
@@ -105,3 +64,37 @@ if (!!window.EventSource) {
 } else {
     alert("Your browser does not support EventSource!");
 }
+
+const onlineUsers = document.querySelector('#online-users');
+/*function updateOnlineUsers() {
+    $.ajax({
+        url: "login",
+        method: "GET",
+        success: function (data) {
+            onlineUsers.innerHTML = 'ONLINE:';
+            if (data && data.length) {
+                data.forEach(user => {
+                    const userLogin = user.login;
+                    if (userLogin in emittersByUser) {
+                        const userDiv = document.createElement('div');
+                        userDiv.innerText = userLogin;
+                        onlineUsers.appendChild(userDiv);
+                    }
+                });
+            } else {
+                console.error("Unexpected response data:", data);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error(textStatus + " - " + errorThrown);
+        }
+    });
+}*/
+
+
+// Call the function initially
+/*updateOnlineUsers();*/
+// Call the function every 60 seconds
+/*setInterval(updateOnlineUsers, 60000);*/
+
+
