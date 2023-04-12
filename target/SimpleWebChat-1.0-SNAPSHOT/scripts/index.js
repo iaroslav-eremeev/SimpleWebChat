@@ -1,14 +1,15 @@
 import {Message} from "./model/message.js";
 import {User} from "./model/user.js";
 
-const chatMessages = document.querySelector('#chat-messages');
-function addChatMessage(message) {
+$('send-message-button').click(function () {
+    const chatMessages = document.querySelector('#chat-messages');
     const messageDiv = document.createElement('div');
-    const userLogin = message.user.login;
-    const messageText = message.messageText;
+    const userLogin = localStorage.getItem('userLogin');
+    const messageText = document.querySelector('#message-text').value;
     messageDiv.innerText = `${userLogin}: ${messageText}`;
     chatMessages.appendChild(messageDiv);
-}
+    }
+)
 
 const onlineUsers = document.querySelector('#online-users');
 /*function updateOnlineUsers() {

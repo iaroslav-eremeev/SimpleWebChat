@@ -10,6 +10,7 @@ $('#btn-login').click(function () {
             data: {"login": $('#login').val(), "password": $('#password').val()},
             success: [function (result) {
                 localStorage.setItem('userId', result.id);
+                localStorage.setItem('userLogin', result.login);
                 $(location).attr('href', "http://localhost:8080/SimpleWebChat/index.html");
             }],
             error: [function (result) {

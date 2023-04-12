@@ -1,7 +1,7 @@
 import {Message} from "./model/message.js";
 import {User} from "./model/user.js";
 
-$('send-message-button').click(function () {
+$('#send-message-button').click(function () {
     const chatMessages = document.querySelector('#chat-messages');
     const messageDiv = document.createElement('div');
     const userLogin = localStorage.getItem('userLogin');

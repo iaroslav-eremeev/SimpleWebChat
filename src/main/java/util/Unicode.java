@@ -5,10 +5,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 
 public class Unicode {
-    public static void setUnicode(HttpServletRequest req, HttpServletResponse resp)
+    public static void setUnicode(HttpServletRequest request, HttpServletResponse response)
             throws UnsupportedEncodingException {
-        resp.setCharacterEncoding("utf-8");
-        resp.setContentType("text/html;charset=utf-8");
-        req.setCharacterEncoding("utf-8");
+        response.setCharacterEncoding("utf-8");
+        response.setContentType("text/html;charset=utf-8");
+        request.setCharacterEncoding("utf-8");
     }
 }
