@@ -16,11 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Logger;
 
 @WebServlet(value = {"/messages"}, asyncSupported = true)
 public class MessageServlet extends HttpServlet {
-
     private SSEEmittersRepository emitters = new SSEEmittersRepository();
     private ChatWatchService service;
 
@@ -44,7 +42,6 @@ public class MessageServlet extends HttpServlet {
                 resp.setContentType("text/event-stream");
                 resp.setHeader("Connection", "keep-alive");
                 resp.setCharacterEncoding("UTF-8");
-
                 this.emitters.add(asyncContext);
                 // send a comment to keep connection alive
                 resp.getWriter().write(": ping\n\n");

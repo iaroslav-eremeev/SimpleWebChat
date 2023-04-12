@@ -13,6 +13,20 @@ public class SSEEmittersRepository {
     public void add(AsyncContext asyncContext){
         asyncContext.addListener(new AsyncListener() {
             @Override
+            public void onStartAsync(AsyncEvent asyncEvent) {
+                /*asyncEvent.getAsyncContext().addListener(this);*/
+                System.out.println("Start async");
+                String userId = (String) asyncEvent.getAsyncContext().getRequest().getAttribute("userId");
+                if (userId != null) {
+                    User user = (User) DAO.getObjectById(Integer.parseInt(userId), User.class);
+                    DAO.closeOpenedSession();
+                    if (user != null) {
+                        user.setOnline(true);
+                        DAO.updateObject(user);
+                    }
+                }
+            }
+            @Override
             public void onComplete(AsyncEvent asyncEvent) {
                 AsyncContext asyncContext = asyncEvent.getAsyncContext();
                 list.remove(asyncContext);
@@ -38,20 +52,6 @@ public class SSEEmittersRepository {
             public void onError(AsyncEvent asyncEvent) {
                 list.remove(asyncContext);
                 System.out.println("Error");
-            }
-
-            @Override
-            public void onStartAsync(AsyncEvent asyncEvent) {
-                System.out.println("Start async");
-                String userId = (String) asyncEvent.getAsyncContext().getRequest().getAttribute("userId");
-                if (userId != null) {
-                    User user = (User) DAO.getObjectById(Integer.parseInt(userId), User.class);
-                    DAO.closeOpenedSession();
-                    if (user != null) {
-                        user.setOnline(true);
-                        DAO.updateObject(user);
-                    }
-                }
             }
         });
         list.add(asyncContext);
